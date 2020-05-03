@@ -44,7 +44,7 @@ static int dielectric_scatter(const material *m, const ray *r_in, const struct h
     
     vec3 unit_dir = vec3_unit(&r_in->dir);
     vec3 unit_dir_neg = vec3_neg(&unit_dir);
-    double cos_theta = fmin(vec3_dot(&unit_dir_neg, &rec->normal), 1.0);
+    double cos_theta = ffmin(vec3_dot(&unit_dir_neg, &rec->normal), 1.0);
     double sin_theta = sqrt(1.0 - cos_theta*cos_theta);
     
     if (etai_over_etat * sin_theta > 1.0) {

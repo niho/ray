@@ -25,7 +25,7 @@ static const sphere sphere3 = {
     .radius = 0.4
 };
 static const sphere sphere4 = {
-    .center = {-1.0, -0.25, -1.0},
+    .center = {-1.0, -0.15, -1.0},
     .radius = 0.35
 };
 static const sphere sphere5 = {
@@ -88,19 +88,18 @@ vec3 ray_color(const ray *r, const scene *world, int depth) {
 }
 
 int main(int argc, char **argv) {
-    const int w = 800;
-    const int h = 400;
+    const int w = 640;
+    const int h = 480;
     const int samples_per_pixel = 200;
     const int max_depth = 50;
 
     printf("P3\n%d %d\n255\n", w, h);
 
-    camera cam = {
-        .lower_left_corner = {-2.0, -1.0, -1.0},
-        .horizontal = {4.0, 0.0, 0.0},
-        .vertical = {0.0, 2.0, 0.0},
-        .origin = {0.0, 0.0, 0.0}
-    };
+    camera cam;
+    const vec3 lookfrom = {-1.5,1,1};
+    const vec3 lookat = {0,0,-1};
+    const vec3 vup = {0,1,0};
+    camera_init(&cam, &lookfrom, &lookat, &vup, 25, (double)w/(double)h);
 
     scene world;
     scene_init(&world);

@@ -128,6 +128,10 @@ vec3 vec3_unit(const vec3 *v) {
     return vec3_div_t(v, vec3_length(v));
 }
 
+void vec3_unit_m(vec3 *v) {
+    vec3_div_mt(v, vec3_length(v));
+}
+
 vec3 vec3_rand_in_unit_sphere() {
     while (1) {
         vec3 p;

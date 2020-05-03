@@ -6,6 +6,11 @@
 #define infinity    INFINITY
 #define pi          3.1415926535897932385
 
+#define degrees_to_radian(d)    (d*pi/180)
+
+#define ffmin(a, b)     (a <= b ? a : b)
+#define ffmax(a, b)     (a >= b ? a : b)
+
 typedef struct vec3 {
     double x;
     double y;
@@ -47,6 +52,7 @@ double vec3_dot(const vec3 *v1, const vec3 *v2);
 vec3 vec3_cross(const vec3 *v1, const vec3 *v2);
 
 vec3 vec3_unit(const vec3 *v);
+void vec3_unit_m(vec3 *v);
 
 vec3 vec3_rand_in_unit_sphere();
 vec3 vec3_rand_unit();
