@@ -12,10 +12,8 @@ ray ray_init(const vec3 *orig, const vec3 *dir) {
 }
 
 vec3 ray_at(const ray *r, double t) {
-    vec3 dir = {r->dir.x, r->dir.y, r->dir.z};
-    vec3 orig = {r->orig.x, r->orig.y, r->orig.z};
-    vec3_scale(&dir, t);
-    vec3_translate(&orig, &dir);
-    return orig;
+    vec3 bt = vec3_mul_t(&r->dir, t);
+    vec3 p = vec3_add(&r->orig, &bt);
+    return p;
 }
 

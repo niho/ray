@@ -1,4 +1,5 @@
 #include <math.h>
+#include <assert.h>
 
 #include "sphere.h"
 
@@ -12,7 +13,7 @@ int sphere_hit(const sphere *s, const ray *r, double t_min, double t_max, hit_re
 
     if (discriminant > 0) {
         double root = sqrt(discriminant);
-        double temp = (-half_b - root)/a;
+        double temp = (-half_b - root) / a;
         if (temp < t_max && temp > t_min) {
             rec->t = temp;
             rec->p = ray_at(r, rec->t);

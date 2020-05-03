@@ -55,10 +55,10 @@ vec3 ray_color(const ray *r, const scene *world, int depth) {
 }
 
 int main(int argc, char **argv) {
-    const int w = 400;
-    const int h = 200;
+    const int w = 800;
+    const int h = 400;
     const int samples_per_pixel = 200;
-    const int max_depth = 10;
+    const int max_depth = 50;
 
     printf("P3\n%d %d\n255\n", w, h);
 

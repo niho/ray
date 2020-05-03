@@ -84,13 +84,13 @@ void vec3_neg(vec3 *v) {
 }
 
 void vec3_translate(vec3 *v1, const vec3 *v2) {
-    v1->x = v1->y + v2->x;
+    v1->x = v1->x + v2->x;
     v1->y = v1->y + v2->y;
     v1->z = v1->z + v2->z;
 }
 
 void vec3_scale(vec3 *v, double s) {
-    v->x = v->y * s;
+    v->x = v->x * s;
     v->y = v->y * s;
     v->z = v->z * s;
 }
