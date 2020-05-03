@@ -25,8 +25,8 @@ static const sphere sphere3 = {
     .radius = 0.4
 };
 static const sphere sphere4 = {
-    .center = {-1.0, -0.15, -1.0},
-    .radius = 0.35
+    .center = {-1.0, 0.5, -2.0},
+    .radius = 1
 };
 static const sphere sphere5 = {
     .center = {0.5, -0.4, -0.8},
@@ -90,13 +90,24 @@ vec3 ray_color(const ray *r, const scene *world, int depth) {
 static void random_scene(scene *world) {
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
-            vec3 center = {a + 0.9 * rand_double(), 0.2, b + 0.9 * rand_double()};
+            vec3 center = {
+                .x = a + 0.9 * rand_double(),
+                .y = 0.2 + 0.2 * rand_double(),
+                .z = b + 0.9 * rand_double()
+            };
 
             sphere *s = (sphere *)malloc(sizeof(sphere));
             s->center = center;
             s->radius = 0.2;
 
-            scene_add(world, SPHERE, s, &mat_metal_2);
+            material *mat = (material *)malloc(sizeof(material));
+            mat->type = METAL;
+            mat->fuzz = rand_double_clamp(0.0, 0.8);
+            mat->albedo.x = 0.8;
+            mat->albedo.y = 0.8;
+            mat->albedo.z = 0.8;
+
+            scene_add(world, SPHERE, s, mat);
         }
     }
 }

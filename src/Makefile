@@ -1,7 +1,7 @@
 CC= gcc -std=gnu99
 CFLAGS= -Wall -Wextra
 DBGCFLAGS= -DDEBUG -g
-RELCFLAGS= -O2
+RELCFLAGS= -O3
 
 DEBUG ?= 1
 ifeq ($(DEBUG), 1)
