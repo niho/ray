@@ -56,6 +56,7 @@ void vec3_unit_m(vec3 *v);
 
 vec3 vec3_rand_in_unit_sphere();
 vec3 vec3_rand_unit();
+vec3 vec3_rand_unit_in_disk();
 
 vec3 vec3_reflect(const vec3 *v, const vec3 *n);
 vec3 vec3_refract(const vec3 *v, const vec3 *n, double etai_over_etat);

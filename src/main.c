@@ -39,7 +39,7 @@ static const material mat_diffuse_red = {
 };
 static const material mat_diffuse_green = {
     .type = DIFFUSE_LAMBERTIAN,
-    .albedo = {0.2, 0.8, 0.3}
+    .albedo = {0.28, 0.3, 0.29}
 };
 
 static const material mat_metal_1 = {
@@ -87,6 +87,20 @@ vec3 ray_color(const ray *r, const scene *world, int depth) {
     return vec3_add(&c1, &c2);
 }
 
+static void random_scene(scene *world) {
+    for (int a = -11; a < 11; a++) {
+        for (int b = -11; b < 11; b++) {
+            vec3 center = {a + 0.9 * rand_double(), 0.2, b + 0.9 * rand_double()};
+
+            sphere *s = (sphere *)malloc(sizeof(sphere));
+            s->center = center;
+            s->radius = 0.2;
+
+            scene_add(world, SPHERE, s, &mat_metal_2);
+        }
+    }
+}
+
 int main(int argc, char **argv) {
     const int w = 640;
     const int h = 480;
@@ -96,10 +110,15 @@ int main(int argc, char **argv) {
     printf("P3\n%d %d\n255\n", w, h);
 
     camera cam;
-    const vec3 lookfrom = {-1.5,1,1};
+    const vec3 lookfrom = {13,2,3};
     const vec3 lookat = {0,0,-1};
     const vec3 vup = {0,1,0};
-    camera_init(&cam, &lookfrom, &lookat, &vup, 25, (double)w/(double)h);
+    double vfov = 25;
+    double aspect = (double)w/(double)h;
+    double aperture = 0.1;
+    vec3 dist_v = vec3_sub(&lookfrom, &lookat);
+    double focus = vec3_length(&dist_v);
+    camera_init(&cam, &lookfrom, &lookat, &vup, vfov, aspect, aperture, focus);
 
     scene world;
     scene_init(&world);
@@ -108,6 +127,8 @@ int main(int argc, char **argv) {
     scene_add(&world, SPHERE, &sphere3, &mat_metal_1);
     scene_add(&world, SPHERE, &sphere4, &mat_glass_1);
     scene_add(&world, SPHERE, &sphere5, &mat_metal_2);
+
+    random_scene(&world);
 
     for (int j = h-1; j >= 0; --j) {
         fprintf(stderr, "Scanlines remaining: %d\n", j);

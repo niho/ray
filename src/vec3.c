@@ -149,6 +149,14 @@ vec3 vec3_rand_unit() {
     return v;
 }
 
+vec3 vec3_rand_unit_in_disk() {
+    while (1) {
+        vec3 p = {rand_double_clamp(-1,1), rand_double_clamp(-1,1), 0};
+        if (vec3_length_squared(&p) >= 1) continue;
+        return p;
+    }
+}
+
 vec3 vec3_reflect(const vec3 *v, const vec3 *n) {
     vec3 u = vec3_mul_t(n, 2 * vec3_dot(v, n));
     return vec3_sub(v, &u);
