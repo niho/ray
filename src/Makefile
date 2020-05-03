@@ -16,7 +16,8 @@ LIBS= -lm $(SYSLIBS)
 SYSLIBS=
 
 BIN= ray
-BIN_O= main.o vec3.o ray.o hittable.o scene.o sphere.o camera.o color.o rand.o
+BIN_O= main.o vec3.o ray.o hittable.o scene.o sphere.o camera.o color.o \
+	   rand.o material.o
 
 all: $(BIN)
 

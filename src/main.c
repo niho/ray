@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "color.h"
 #include "rand.h"
+#include "material.h"
 
 
 static const sphere sphere1 = {
@@ -21,11 +22,40 @@ static const sphere sphere2 = {
 };
 static const sphere sphere3 = {
     .center = {1.0, 0.0, -1.0},
-    .radius = 0.5
+    .radius = 0.4
 };
 static const sphere sphere4 = {
-    .center = {-1.0, 0.0, -1.0},
-    .radius = 0.5
+    .center = {-1.0, -0.25, -1.0},
+    .radius = 0.35
+};
+static const sphere sphere5 = {
+    .center = {0.5, -0.4, -0.8},
+    .radius = 0.2
+};
+
+static const material mat_diffuse_red = {
+    .type = DIFFUSE_LAMBERTIAN,
+    .albedo = {0.7, 0.3, 0.3}
+};
+static const material mat_diffuse_green = {
+    .type = DIFFUSE_LAMBERTIAN,
+    .albedo = {0.2, 0.8, 0.3}
+};
+
+static const material mat_metal_1 = {
+    .type = METAL,
+    .albedo = {0.8, 0.6, 0.2},
+    .fuzz = 0.8
+};
+static const material mat_metal_2 = {
+    .type = METAL,
+    .albedo = {0.8, 0.8, 0.8},
+    .fuzz = 0.1
+};
+static const material mat_glass_1 = {
+    .type = DIELECTRIC,
+    .albedo = {1.0, 1.0, 1.0},
+    .ref_idx = 1.5
 };
 
 
@@ -36,13 +66,16 @@ vec3 ray_color(const ray *r, const scene *world, int depth) {
         return Z;
 
     if (scene_hit(world, r, 0.001, infinity, &rec)) {
-        vec3 target = vec3_rand_unit();
-        vec3_add_m(&target, &rec.normal);
+        ray scattered;
+        vec3 attenuation;
 
-        ray r2 = { .orig = rec.p, .dir = target };
-        vec3 N = ray_color(&r2, world, depth-1);
-
-        return vec3_mul_t(&N, 0.5);
+        if (material_scatter(rec.mat, r, &rec, &attenuation, &scattered)) {
+            vec3 color = ray_color(&scattered, world, depth-1);
+            vec3_mul_m(&color, &attenuation);
+            return color;
+        } else {
+            return Z;
+        }
     }
 
     vec3 unit_direction = vec3_unit(&r->dir);
@@ -71,10 +104,11 @@ int main(int argc, char **argv) {
 
     scene world;
     scene_init(&world);
-    scene_add(&world, SPHERE, &sphere1);
-    scene_add(&world, SPHERE, &sphere2);
-    scene_add(&world, SPHERE, &sphere3);
-    scene_add(&world, SPHERE, &sphere4);
+    scene_add(&world, SPHERE, &sphere1, &mat_diffuse_red);
+    scene_add(&world, SPHERE, &sphere2, &mat_diffuse_green);
+    scene_add(&world, SPHERE, &sphere3, &mat_metal_1);
+    scene_add(&world, SPHERE, &sphere4, &mat_glass_1);
+    scene_add(&world, SPHERE, &sphere5, &mat_metal_2);
 
     for (int j = h-1; j >= 0; --j) {
         fprintf(stderr, "Scanlines remaining: %d\n", j);

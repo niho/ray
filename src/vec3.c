@@ -65,8 +65,18 @@ vec3 vec3_mul_t(const vec3 *v, double t) {
     return u;
 }
 
+void vec3_mul_mt(vec3 *v, double t) {
+    v->x = v->x * t;
+    v->y = v->y * t;
+    v->z = v->z * t;
+}
+
 vec3 vec3_div_t(const vec3 *v, double t) {
     return vec3_mul_t(v, 1.0 / t);
+}
+
+void vec3_div_mt(vec3 *v, double t) {
+    vec3_mul_mt(v, 1.0 / t);
 }
 
 double vec3_length(const vec3 *v) {
@@ -77,7 +87,12 @@ double vec3_length_squared(const vec3 *v) {
     return v->x*v->x + v->y*v->y + v->z*v->z;
 }
 
-void vec3_neg(vec3 *v) {
+vec3 vec3_neg(const vec3 *v) {
+    vec3 u = {-v->x, -v->y, -v->z};
+    return u;
+}
+
+void vec3_neg_m(vec3 *v) {
     v->x = -v->x;
     v->y = -v->y;
     v->z = -v->z;
@@ -130,3 +145,18 @@ vec3 vec3_rand_unit() {
     return v;
 }
 
+vec3 vec3_reflect(const vec3 *v, const vec3 *n) {
+    vec3 u = vec3_mul_t(n, 2 * vec3_dot(v, n));
+    return vec3_sub(v, &u);
+}
+
+vec3 vec3_refract(const vec3 *v, const vec3 *n, double etai_over_etat) {
+    vec3 v_neg = {-v->x, -v->y, -v->z};
+    double cos_theta = vec3_dot(&v_neg, n);
+    vec3 r_out_parallel = vec3_mul_t(n, cos_theta);
+    vec3_add_m(&r_out_parallel, v);
+    vec3_mul_mt(&r_out_parallel, etai_over_etat);
+    double r_perp = -sqrt(1.0 - vec3_length_squared(&r_out_parallel));
+    vec3 r_out_perp = vec3_mul_t(n, r_perp);
+    return vec3_add(&r_out_parallel, &r_out_perp);
+}

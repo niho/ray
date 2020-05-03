@@ -9,10 +9,11 @@ void scene_init(scene *s) {
     s->last = NULL;
 }
 
-void scene_add(scene *s, geometry_type t, const void *geometry) {
+void scene_add(scene *s, geometry_type t, const void *geometry, const material *mat) {
     scene_node *node = (scene_node *)malloc(sizeof(scene_node));
     node->type = t;
     node->geometry = geometry;
+    node->mat = mat;
     node->next = NULL;
     if (s->last == NULL) {
         s->first = node;
@@ -49,10 +50,12 @@ int scene_hit(const scene *s, const ray *r, double t_min, double t_max, hit_reco
                 if (sphere_hit((sphere *)node->geometry, r, t_min, closest_so_far, rec)) {
                     hit_anything = 1;
                     closest_so_far = rec->t;
+                    rec->mat = node->mat;
                 }
         }
 
         node = (scene_node *)node->next;
     }
+
     return hit_anything;
 }
