@@ -32,6 +32,11 @@ static const sphere sphere5 = {
     .center = {0.5, -0.4, -0.8},
     .radius = 0.2
 };
+static const sphere sphere6 = {
+    .center = {0.5, 2, 0.8},
+    .radius = 1
+};
+
 
 static const material mat_diffuse_red = {
     .type = DIFFUSE_LAMBERTIAN,
@@ -92,7 +97,7 @@ static void random_scene(scene *world) {
         for (int b = -11; b < 11; b++) {
             vec3 center = {
                 .x = a + 0.9 * rand_double(),
-                .y = 0.2 + 0.2 * rand_double(),
+                .y = 2.0 * rand_double(),
                 .z = b + 0.9 * rand_double()
             };
 
@@ -138,6 +143,7 @@ int main(int argc, char **argv) {
     scene_add(&world, SPHERE, &sphere3, &mat_metal_1);
     scene_add(&world, SPHERE, &sphere4, &mat_glass_1);
     scene_add(&world, SPHERE, &sphere5, &mat_metal_2);
+    scene_add(&world, SPHERE, &sphere6, &mat_glass_1);
 
     random_scene(&world);
 
