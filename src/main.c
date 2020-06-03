@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <pthread.h>
 
 #include "vec3.h"
 #include "ray.h"
@@ -11,6 +12,13 @@
 #include "rand.h"
 #include "material.h"
 
+static scene world;
+static camera cam;
+
+const int w = 640;
+const int h = 480;
+const int samples_per_pixel = 200;
+const int max_depth = 50;
 
 static const sphere sphere1 = {
     .center = {0.0, 0.0, -1.0},
@@ -117,15 +125,35 @@ static void random_scene(scene *world) {
     }
 }
 
-int main(int argc, char **argv) {
-    const int w = 640;
-    const int h = 480;
-    const int samples_per_pixel = 200;
-    const int max_depth = 50;
+static void *render_scanline(void *arg) {
+    int j = (int)arg;
 
+    color *scanline;
+    scanline = malloc(sizeof(color) * w);
+
+    for (int i = 0; i < w; ++i) {
+        vec3 pixel = {0,0,0};
+        for (int s = 0; s < samples_per_pixel; ++s) {
+            double u = ((double)i + rand_double()) / w;
+            double v = ((double)j + rand_double()) / h;
+
+            ray r = camera_get_ray(&cam, u, v);
+            vec3 sample = ray_color(&r, &world, max_depth);
+
+            vec3_add_m(&pixel, &sample);
+        }
+
+        scanline[i] = color_sample(pixel.x, pixel.y, pixel.z, samples_per_pixel);
+
+        fprintf(stderr, ".");
+    }
+
+    return scanline;
+}
+
+int main(int argc, char **argv) {
     printf("P3\n%d %d\n255\n", w, h);
 
-    camera cam;
     const vec3 lookfrom = {13,2,3};
     const vec3 lookat = {0,0,-1};
     const vec3 vup = {0,1,0};
@@ -136,7 +164,6 @@ int main(int argc, char **argv) {
     double focus = vec3_length(&dist_v);
     camera_init(&cam, &lookfrom, &lookat, &vup, vfov, aspect, aperture, focus);
 
-    scene world;
     scene_init(&world);
     scene_add(&world, SPHERE, &sphere1, &mat_diffuse_red);
     scene_add(&world, SPHERE, &sphere2, &mat_diffuse_green);
@@ -147,23 +174,30 @@ int main(int argc, char **argv) {
 
     random_scene(&world);
 
+    pthread_t threads[h-1];
+    pthread_attr_t attr;
+
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
     for (int j = h-1; j >= 0; --j) {
-        fprintf(stderr, "Scanlines remaining: %d\n", j);
-        for (int i = 0; i < w; ++i) {
-            
-            vec3 pixel = {0,0,0};
-            for (int s = 0; s < samples_per_pixel; ++s) {
-                double u = ((double)i + rand_double()) / w;
-                double v = ((double)j + rand_double()) / h;
+        if (pthread_create(&threads[j], &attr, render_scanline, (void *)j) != 0) {
+            perror("pthread_create failed");
+            exit(1);
+        }
+    }
 
-                ray r = camera_get_ray(&cam, u, v);
-                vec3 sample = ray_color(&r, &world, max_depth);
+    pthread_attr_destroy(&attr);
 
-                vec3_add_m(&pixel, &sample);
-            }
+    for(int t = h-1; t >= 0; --t) {
+        color *scanline = NULL;
+        if (pthread_join(threads[t], (void **)&scanline) != 0) {
+            perror("pthread_join failed");
+            exit(1);
+        }
 
-            color c = color_sample(pixel.x, pixel.y, pixel.z, samples_per_pixel);
-            printf("%d %d %d\n", c.r, c.g, c.b);
+        for(int x = 0; x < w; x++) {
+            printf("%d %d %d\n", scanline[x].r, scanline[x].g, scanline[x].b);
         }
     }
 
